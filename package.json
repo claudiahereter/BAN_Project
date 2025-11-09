@@ -1,0 +1,24 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "Bicing Free Slots/Air Quality Notifier (BAN) aims to provide users with real-time updates on Bicing station availability as well as air quality via Telegram notifications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claudiahereter/BAN_Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/claudiahereter/BAN_Project/issues"
+  },
+  "homepage": "https://github.com/claudiahereter/BAN_Project#readme",
+  "devDependencies": {
+    "cypress": "^15.6.0"
+  }
+}

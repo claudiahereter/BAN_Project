@@ -1,4 +1,12 @@
-/Users/martapuigmolina/eclipse-workspace/project/src/main/java/upf/at/services/Data.java
-/Users/martapuigmolina/eclipse-workspace/project/src/main/java/upf/at/services/Station.java
-/Users/martapuigmolina/eclipse-workspace/project/src/main/java/upf/at/services/Stations.java
-/Users/martapuigmolina/eclipse-workspace/project/src/main/java/upf/at/services/client.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/AirQuality.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/AirQualityByCity.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Clients.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Data.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Message.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Notifier.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Phone.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Station.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/data/Stations.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/services/ClientService.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/services/NotifierService.java
+/Users/claudia/Desktop/project/src/main/java/upf/at/services/StationService.java
