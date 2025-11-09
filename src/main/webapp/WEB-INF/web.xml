@@ -1,0 +1,23 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" 
+         version="4.0">
+
+   <display-name>project</display-name>
+
+   <servlet>
+      <servlet-name>Project</servlet-name>
+      <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+      <init-param>
+         <param-name>jersey.config.server.provider.classnames</param-name>
+         <param-value>upf.at.services.StationService, upf.at.services.ClientService, upf.at.services.NotifierService</param-value>
+      </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+
+   <servlet-mapping>
+      <servlet-name>Project</servlet-name>
+      <url-pattern>/at/*</url-pattern>
+   </servlet-mapping>
+
+</web-app>

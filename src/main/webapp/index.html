@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAN Application</title>
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 40px;  
+        }
+        .section {
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 600px;  
+            background: rgba(255, 255, 255, 0.2)
+        }
+        .form-container {
+            display: none;
+            margin-top: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+        }
+     
+        .section:nth-child(1) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(2) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(3) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(4) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(5) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(6) button { background-color: #1e90ff; }  /* Blue */
+        .section:nth-child(7) button { background-color: #1e90ff; }  /* Blue */
+        button:hover {
+            opacity: 0.8;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        /* Align the output to the left */
+        #stationsOutput, #clientsOutput {
+            text-align: left;
+            margin-left: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Bicing Free Slots/Air Quality Notifier</h1>
+
+    <div class="section">
+        <h2>Get Stations</h2>
+        <button onclick="toggleForm('stationsForm')">Show Stations Form</button>
+        <div id="stationsForm" class="form-container">
+            <button onclick="loadStations()">Load Stations</button>
+            <div id="stationsOutput"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Subscribe Client</h2>
+        <button onclick="toggleForm('subscriptionForm')">Show Subscription Form</button>
+        <div id="subscriptionForm" class="form-container">
+            <input type="text" id="phoneClient" placeholder="Phone Number">
+            <input type="text" id="telegramTokenClient" placeholder="Telegram Token">
+            <input type="text" id="stationsIds" placeholder="Station IDs (1-544)">
+            <button onclick="subscribeClient()">Confirm Subscription</button>
+            <div id="subscriptionClientStatus"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Get Clients</h2>
+        <button onclick="toggleForm('clientsForm')">Show Clients Form</button>
+        <div id="clientsForm" class="form-container">
+            <button onclick="loadClients()">Load Clients</button>
+            <div id="clientsOutput"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Notify Slots</h2>
+        <button onclick="toggleForm('notifySlotsForm')">Show Notify Slots Form</button>
+        <div id="notifySlotsForm" class="form-container">
+            <input type="text" id="phoneNotify" placeholder="Phone Number">
+            <button onclick="sendNotifySlots()">Send Notification</button>
+            <div id="notifySlotsStatus"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Notify Air Quality (Current Location)</h2>
+        <button onclick="toggleForm('notifyAirQualityCurrentForm')">Show Form</button>
+        <div id="notifyAirQualityCurrentForm" class="form-container">
+            <input type="text" id="phoneNotifyCurrent" placeholder="Phone Number">
+            <button onclick="notifyAirQualityCurrent()">Notify Air Quality</button>
+            <div id="notifyAirQualityCurrentStatus"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Notify Air Quality (By City)</h2>
+        <button onclick="toggleForm('notifyAirQualityCityForm')">Show Form</button>
+        <div id="notifyAirQualityCityForm" class="form-container">
+            <input type="text" id="cityNotify" placeholder="City Name">
+            <input type="text" id="phoneNotifyCity" placeholder="Phone Number">
+            <button onclick="notifyAirQualityByCity()">Notify Air Quality</button>
+            <div id="notifyAirQualityCityStatus"></div>
+        </div>
+    </div>
+
+    <script>
+    
+    // Function for form's functionality
+    function toggleForm(formId) {
+        const form = document.getElementById(formId);
+        if (form.style.display === "none" || form.style.display === "") {
+            // Clear the content of the output div when the form is opened
+            if (formId === "stationsForm") {
+                document.getElementById("stationsOutput").innerHTML = "";
+            } else if (formId === "clientsForm") {
+                document.getElementById("clientsOutput").innerHTML = "";
+            }
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+
+        // Function to load stations
+        function loadStations() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    let stations = JSON.parse(xmlhttp.responseText);
+                    let output = "<h3>List of Bicing Stations:</h3><ul>";
+                    stations.forEach(station => {
+                        output += `<li>
+                            <strong>Station ID:</strong> ${station.station_id} <br>
+                            <strong>Bikes Available:</strong> ${station.num_bikes_available} <br>
+                            <strong>Docks Available:</strong> ${station.num_docks_available} <br>
+                            <strong>Last Reported:</strong> ${new Date(station.last_reported * 1000).toLocaleString()} <br>
+                            <strong>Charging Station:</strong> ${station.is_charging_station ? "Yes" : "No"} <br>
+                            <strong>Status:</strong> ${station.status}
+                        </li><br>`;
+                    });
+                    output += "</ul>";
+                    document.getElementById("stationsOutput").innerHTML = output;
+                }
+            };
+            xmlhttp.open("GET", "/project-0.1/at/stations/list", true);
+            xmlhttp.send();
+        }
+
+            
+       
+       // Function to subscribe a client
+		function subscribeClient() {
+		    var xmlhttp = new XMLHttpRequest();
+		    
+		    let phone = document.getElementById("phoneClient").value.trim();
+		  
+		  
+		        // Proceed with subscription logic only if phone number is not already taken
+		        let telegramToken = document.getElementById("telegramTokenClient").value.trim();
+		        
+		        // Split the user answer
+		        let stationIds = document.getElementById("stationsIds").value
+							    .split(",")           // Split by ","
+							    .map(id => id.trim()); // Remove spaces from each element
+
+		        
+		        // Check if stationIds contain letters
+				let notNumeric = stationIds.some(id => !/^\d+$/.test(id));
+
+				if (notNumeric) stationIds = [-1];
+
+
+				//else {
+				   // stationIds = stationIds.map(Number); // Convert to numbers if valid
+				//}
+		        var client = {
+		            "phone": phone,
+		            "telegramToken": telegramToken,
+		            "stationsIds": stationIds
+		        };
+		
+		        xmlhttp.onreadystatechange = function () {
+		            if (xmlhttp.readyState == 4) {  // Ensure request is complete
+		      					
+						let responseText = JSON.parse(xmlhttp.responseText);
+			
+		                if (xmlhttp.status == 200) {
+		                    document.getElementById("subscriptionClientStatus").innerHTML = responseText.success;
+		                } else if (xmlhttp.status == 400) {
+		                    document.getElementById("subscriptionClientStatus").innerHTML = responseText.error;
+		                }else if (xmlhttp.status == 401) {
+			                    document.getElementById("subscriptionClientStatus").innerHTML = responseText.error;
+		                } else if (xmlhttp.status == 409) { 
+		                    document.getElementById("subscriptionClientStatus").innerHTML = responseText.error;
+		                } else if (xmlhttp.status == 500) {
+		                    document.getElementById("subscriptionClientStatus").innerHTML = responseText.error || "Server error, please try again later";
+		                } else {
+		                    document.getElementById("subscriptionClientStatus").innerHTML = "Unknown error occurred";
+		                }
+		                // Clear the status message after 5 seconds
+		                clearStatusMessage("subscriptionClientStatus");
+		            }
+		        };
+
+		
+		        xmlhttp.open("POST", "/project-0.1/at/client/subscribe", true);
+		        xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		        xmlhttp.send(JSON.stringify(client));
+		
+		}
+
+
+        // Function to load clients
+        function loadClients() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    let clients = JSON.parse(xmlhttp.responseText);
+                    let output = "<h3>List of Subscribed Clients:</h3><ul>";
+                    clients.forEach(client => {
+                        output += `<li>
+                            <strong>Phone:</strong> ${client.phone} <br>
+                            <strong>Telegram Token:</strong> ${client.telegramToken} <br>
+                            <strong>Subscribed Stations:</strong> ${client.stationsIds.length > 0 ? client.stationsIds.join(", ") : "No stations"} <br>
+                        </li><br>`;
+                    });
+                    output += "</ul>";
+                    document.getElementById("clientsOutput").innerHTML = output;
+                }
+            };
+            xmlhttp.open("GET", "/project-0.1/at/client/list", true);
+            xmlhttp.send();
+        }
+
+     	// Function to notify slots
+        function sendNotifySlots() {
+		    var xmlhttp = new XMLHttpRequest();
+		    let phone = document.getElementById("phoneNotify").value.trim();
+
+		    var params = { "phone": phone };
+		
+		    // Set a timeout for the request
+		    let timeoutId = setRequestTimeout("notifySlotsStatus");
+		
+		    xmlhttp.onreadystatechange = function() {
+		        if (xmlhttp.readyState == 4) {
+		            // Clear the timeout if the request completes
+		            clearTimeout(timeoutId);
+					
+					let responseText = JSON.parse(xmlhttp.responseText);
+		
+		            if (xmlhttp.status == 200) {
+		                document.getElementById("notifySlotsStatus").innerHTML = "Notification sent!";
+		            } else if (xmlhttp.status == 400) {
+					    document.getElementById("notifySlotsStatus").innerHTML = responseText.error; // Invalid phone
+					} else if (xmlhttp.status == 404) {
+					    document.getElementById("notifySlotsStatus").innerHTML = responseText.error; // Phone not subscribed
+					} else if (xmlhttp.status == 500) {
+					    document.getElementById("notifySlotsStatus").innerHTML = responseText.error; // Error in fetching the station Ids
+					} else if (xmlhttp.status == 503) {
+					    document.getElementById("notifySlotsStatus").innerHTML = responseText.error; // AQI API OR Telegram API is unavailable
+					} else {
+					    document.getElementById("notifySlotsStatus").innerHTML = "Unknown error occurred.";
+					}
+
+			
+		            // Clear the status message after 5 seconds
+		            clearStatusMessage("notifySlotsStatus");
+		        }
+		    };
+		
+		    xmlhttp.open("POST", "/project-0.1/at/notify/slots", true);
+		    xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+	    	xmlhttp.send(JSON.stringify(params));
+	    	console.log("Params being sent:", JSON.stringify(params));
+			
+		}
+
+        // Function to notify air quality using the current location (IP)
+        async function notifyAirQualityCurrent() {
+        	var xmlhttp = new XMLHttpRequest();
+		    let phone = document.getElementById("phoneNotifyCurrent").value.trim();
+		    let ipAddress = await getIPAddress(); // Fetch IP automatically
+			
+		    let params = { "phone": phone, "ipAddress": ipAddress };
+		
+		    // Set a timeout for the request
+		    let timeoutId = setRequestTimeout("notifyAirQualityCurrentStatus");
+		
+		    
+		    xmlhttp.onreadystatechange = function() {
+		        if (xmlhttp.readyState == 4) {
+		            // Clear the timeout if the request completes
+		            clearTimeout(timeoutId);
+					
+					let responseText = JSON.parse(xmlhttp.responseText);
+		
+		            if (xmlhttp.status == 200) {
+		                document.getElementById("notifyAirQualityCurrentStatus").innerHTML = "Air Quality notification sent!";
+		            } else if (xmlhttp.status == 400) {
+					    document.getElementById("notifyAirQualityCurrentStatus").innerHTML = responseText.error; // Invalid phone or city name
+					} else if (xmlhttp.status == 404) {
+					    document.getElementById("notifyAirQualityCurrentStatus").innerHTML = responseText.error; // Phone not subscribed
+					} else if (xmlhttp.status == 503) {
+					    document.getElementById("notifyAirQualityCurrentStatus").innerHTML = responseText.error; // AQI API is unavailable
+					} else {
+					    document.getElementById("notifyAirQualityCurrentStatus").innerHTML = "Unknown error occurred.";
+					}
+
+		
+		            // Clear the status message after 5 seconds
+		            clearStatusMessage("notifyAirQualityCurrentStatus");
+		        }
+		    };
+		    
+		   
+		    xmlhttp.open("POST", "/project-0.1/at/notify/getAirQualityFromIP", true);
+		    xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		    xmlhttp.send(JSON.stringify(params));
+		   
+		}
+
+        
+        // Function to notify air quality using a manually entered city name
+        function notifyAirQualityByCity() {
+		    var xmlhttp = new XMLHttpRequest();
+		    let phone = document.getElementById("phoneNotifyCity").value.trim();
+		    let city = document.getElementById("cityNotify").value.trim();
+		    		    
+		    let params = { "city": city, "phone": phone };
+		
+		    // Set a timeout for the request
+		    let timeoutId = setRequestTimeout("notifyAirQualityCityStatus");
+		
+		    xmlhttp.onreadystatechange = function() {
+		        if (xmlhttp.readyState == 4) {
+		            // Clear the timeout if the request completes
+		            clearTimeout(timeoutId);
+					
+					let responseText = JSON.parse(xmlhttp.responseText);
+		
+		            if (xmlhttp.status == 200) {
+		                document.getElementById("notifyAirQualityCityStatus").innerHTML = "Air Quality notification sent!";
+		            } else if (xmlhttp.status == 400) {
+					    document.getElementById("notifyAirQualityCityStatus").innerHTML = responseText.error;
+					} else if (xmlhttp.status == 404) {
+					    document.getElementById("notifyAirQualityCityStatus").innerHTML = responseText.error; // This phone number is not subscribed or has no stations assigned
+					} else if (xmlhttp.status == 503) {
+					    document.getElementById("notifyAirQualityCityStatus").innerHTML = responseText.error; // AQI API is unavailable
+					} else {
+					    document.getElementById("notifyAirQualityCityStatus").innerHTML = "Unknown error occurred.";
+					}
+
+			
+		            // Clear the status message after 5 seconds
+		            clearStatusMessage("notifyAirQualityCityStatus");
+		        }
+		    };
+		    
+		    xmlhttp.open("POST", "/project-0.1/at/notify/getAirQualityByCity", true);
+		    xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		    xmlhttp.send(JSON.stringify(params));
+	   
+		}
+
+        
+////////////////////////////////AUXILIAR FUNCTIONS////////////////////////////////////////////////////////////
+          
+        // Function to get the user's IP address
+        async function getIPAddress() {
+            try {
+                let response = await fetch('http://ip-api.com/json/');
+                let data = await response.json();
+                return data.query; 
+            } catch (error) {
+                console.error('Error fetching IP address:', error);
+                return null;
+            }
+        }
+        
+        // Function to clear messages after a certain period
+        function clearStatusMessage(elementId, delay = 5000) {
+            setTimeout(() => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = ""; // Clear the content of the element
+                }
+            }, delay);
+        }
+        
+        // Function to set a timeout if the chatId was not retrieved
+        function setRequestTimeout(statusElementId, timeoutDuration = 10000, clearDuration = 5000) {
+		    return setTimeout(() => {
+		        const statusElement = document.getElementById(statusElementId);
+		        if (statusElement) {
+		            statusElement.innerHTML = "No response received. Please write something to the bot.";
+		            // Clear the status message after the specified duration
+		            clearStatusMessage(clearDuration);
+		        }
+		    }, timeoutDuration);
+		}
+ 
+    </script>
+</body>
+</html>
