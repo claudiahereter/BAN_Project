@@ -1,8 +1,8 @@
 package upf.at.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -13,6 +13,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import upf.at.data.Clients;
 
 
@@ -91,13 +92,6 @@ public class ClientService {
     @Path("/list")
 	@Produces(MediaType.APPLICATION_JSON) 
     public List<Clients> get() {
-		
-		// TO BE REMOVED: JUST FOR CHECKING
-		//String phone = "678290548";
-		//String token = "8008889290:AAHYeISurfKIpxmoIQOehNNFaPPOCms3l9c";
-		//List<Integer> stationIdList = Arrays.asList(1);
-		
-		//Clients clientData = new Clients(phone, token, stationIdList);
 		
 		//clients.add(clientData);
         return clients;
